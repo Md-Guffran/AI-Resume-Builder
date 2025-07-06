@@ -11,7 +11,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { FileText, Download, Eye, ArrowLeft, ArrowRight, Sparkles, Wand2 } from "lucide-react"
 import Link from "next/link"
 import { TemplateSelector, templatePreviews } from "@/components/resume-templates/template-selector"
-import  html2pdf from "html2pdf.js"
 
 export default function ResumeBuilderPage() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -135,10 +134,17 @@ export default function ResumeBuilderPage() {
   }
 
   // Download PDF handler
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     const element = previewRef.current
     if (!element) return
-    html2pdf().from(element).save("resume.pdf")
+    
+    try {
+      const html2pdf = (await import("html2pdf.js")).default
+      html2pdf().from(element).save("resume.pdf")
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      alert("Failed to generate PDF. Please try again.")
+    }
   }
 
   // Preview button handler

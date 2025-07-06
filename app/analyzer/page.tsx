@@ -1,8 +1,6 @@
 "use client"
 
 import type React from "react"
-  import jsPDF from "jspdf"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -160,49 +158,55 @@ export default function AnalyzerPage() {
 
 
 
-const handleDownloadReport = () => {
+const handleDownloadReport = async () => {
   if (!analysisResult) return
 
-  const doc = new jsPDF()
-  doc.setFontSize(16)
-  doc.text("Resume Analysis Report", 10, 15)
+  try {
+    const jsPDF = (await import("jspdf")).default
+    const doc = new jsPDF()
+    doc.setFontSize(16)
+    doc.text("Resume Analysis Report", 10, 15)
 
-  doc.setFontSize(12)
-  let y = 25
+    doc.setFontSize(12)
+    let y = 25
 
-  doc.text(`ATS Score: ${analysisResult.atsScore}`, 10, y)
-  y += 8
-  doc.text(`Feedback: ${analysisResult.overallFeedback}`, 10, y)
-  y += 10
+    doc.text(`ATS Score: ${analysisResult.atsScore}`, 10, y)
+    y += 8
+    doc.text(`Feedback: ${analysisResult.overallFeedback}`, 10, y)
+    y += 10
 
-  doc.text("Strengths:", 10, y)
-  y += 7
-  analysisResult.strengths.forEach(strength => {
-    doc.text(`- ${strength}`, 12, y)
-    y += 6
-  })
+    doc.text("Strengths:", 10, y)
+    y += 7
+    analysisResult.strengths.forEach(strength => {
+      doc.text(`- ${strength}`, 12, y)
+      y += 6
+    })
 
-  y += 4
-  doc.text("Weaknesses:", 10, y)
-  y += 7
-  analysisResult.weaknesses.forEach(weakness => {
-    doc.text(`- ${weakness}`, 12, y)
-    y += 6
-  })
+    y += 4
+    doc.text("Weaknesses:", 10, y)
+    y += 7
+    analysisResult.weaknesses.forEach(weakness => {
+      doc.text(`- ${weakness}`, 12, y)
+      y += 6
+    })
 
-  y += 4
-  doc.text("Recommendations:", 10, y)
-  y += 7
-  analysisResult.recommendations.forEach(rec => {
-    doc.text(`- ${rec.title}: ${rec.description}`, 12, y)
-    y += 6
-    if (y > 270) { // Add new page if needed
-      doc.addPage()
-      y = 15
-    }
-  })
+    y += 4
+    doc.text("Recommendations:", 10, y)
+    y += 7
+    analysisResult.recommendations.forEach(rec => {
+      doc.text(`- ${rec.title}: ${rec.description}`, 12, y)
+      y += 6
+      if (y > 270) { // Add new page if needed
+        doc.addPage()
+        y = 15
+      }
+    })
 
-  doc.save("resume-analysis.pdf")
+    doc.save("resume-analysis.pdf")
+  } catch (error) {
+    console.error("Error generating PDF:", error)
+    alert("Failed to generate PDF. Please try again.")
+  }
 }
 //   const handleDownloadReport = () => {
 //     if (!analysisResult) return

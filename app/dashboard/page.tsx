@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import jsPDF from "jspdf"
 
 interface Resume {
   id: number
@@ -108,15 +107,21 @@ export default function DashboardPage() {
   }
 
   // Download Resume as PDF
-  const handleDownloadResume = (resume: Resume) => {
-    const doc = new jsPDF()
-    doc.setFontSize(16)
-    doc.text(resume.name, 10, 15)
-    doc.setFontSize(12)
-    doc.text(`Template: ${resume.template}`, 10, 25)
-    doc.text(`Status: ${resume.status}`, 10, 35)
-    doc.text(`Last Modified: ${resume.lastModified}`, 10, 45)
-    doc.save(`${resume.name.replace(/\s+/g, "_")}.pdf`)
+  const handleDownloadResume = async (resume: Resume) => {
+    try {
+      const jsPDF = (await import("jspdf")).default
+      const doc = new jsPDF()
+      doc.setFontSize(16)
+      doc.text(resume.name, 10, 15)
+      doc.setFontSize(12)
+      doc.text(`Template: ${resume.template}`, 10, 25)
+      doc.text(`Status: ${resume.status}`, 10, 35)
+      doc.text(`Last Modified: ${resume.lastModified}`, 10, 45)
+      doc.save(`${resume.name.replace(/\s+/g, "_")}.pdf`)
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      alert("Failed to generate PDF. Please try again.")
+    }
   }
 
   // View Resume
